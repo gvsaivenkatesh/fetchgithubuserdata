@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch GitHub User</title>
+    <title>GitHub User Fetch</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
         }
         button {
             background-color: #007bff;
-            color: white;
+            color: rgba(255, 255, 255, 0.938);
             padding: 10px 20px;
             border: none;
             cursor: pointer;
@@ -23,9 +23,9 @@
         button:hover {
             background-color: #0056b3;
         }
-        .container {
+        .parentEle {
             margin-top: 20px;
-            display: none;
+            display: none; /* Initially hidden */
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 10px;
@@ -40,6 +40,7 @@
             border-radius: 50%;
             margin-bottom: 10px;
         }
+       
         .error {
             color: red;
             font-weight: bold;
@@ -47,43 +48,56 @@
     </style>
 </head>
 <body>
-    <h1>GitHub User Info</h1>
-    <button onclick="githubUser()">Fetch GitHub User Data</button>
-    
-    <div id="userContainer" class="container"></div>
-    <p id="errorMessage" class="error"></p>
+    <input type="text" id="input" placeholder="Enter GitHub username">
+    <button onclick="getGitHubUser()">Fetch GitHub User Data</button><br><br>
+    <div id="parent"></div>
 
     <script>
-        function githubUser() {
-            let username = "gvsaivenkatesh";
-            let url = `https://api.github.com/users/${username}`;
-            let container = document.getElementById("userContainer");
-            let errorMessage = document.getElementById("errorMessage");
+        function getGitHubUser() {
+            let username = document.getElementById("input").value;
+            const url = `https://api.github.com/users/${username}`;
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`User not found: ${response.status}`);        }
-                    return response.json();
-                })
-                .then(data => {
-                    container.innerHTML = `
-                        <img src="${data.avatar_url}" alt="Avatar">
-                        <h3>${data.name || data.login}</h3>
-                        <p><strong>Username:</strong> ${data.login}</p>
-                        <p><strong>Followers:</strong> ${data.followers}</p>
-                        <p><strong>Following:</strong> ${data.following}</p>
-                        <p><strong>Public Repos:</strong> ${data.public_repos}</p>
-                        <a href="${data.html_url}" target="_blank">View Profile</a>
-                    `;
+            fetch(url,{})
+                .then(response => response.json()) 
+                .then(userData => {
+                    console.log("User data:", userData);
 
-                    container.style.display = "block";
-                    errorMessage.textContent = ""; 
+                    let nameEl = document.createElement("h1");
+                    nameEl.textContent =  userData.login;
+
+                    let followE1 = document.createElement("h2");
+                    followE1.textContent = `Following: ${userData.following}`;
+
+                    let anchorEl = document.createElement("a");
+                    anchorEl.href = userData.html_url;
+                    anchorEl.textContent = "Go to GitHub"; 
+
+                    let avatarEl = document.createElement("img");
+                    avatarEl.src = userData.avatar_url;
+                    avatarEl.alt = "User Avatar";
+                    avatarEl.style.width = "150px";
+
+                    let followersE1 = document.createElement("h2");
+                    followersE1.textContent =`Followers:${userData.followers}`;
+
+                    let reposE1 = document.createElement("h2")
+                    reposE1.textContent = `Repositories: ${userData.public_repos}`;
+
+                    let parentEle = document.getElementById("parent");
+
+                    parentEle.appendChild(avatarEl)
+                    parentEle.appendChild(nameEl);
+                    parentEle.appendChild(followE1);
+                    parentEle.appendChild(followersE1);
+                    parentEle.appendChild(reposE1);
+                    parentEle.appendChild(anchorEl);
+
+                    parentEle.classList.add("parentEle"); 
+                    parentEle.style.display = "block"; 
+
                 })
                 .catch(error => {
-                    errorMessage.textContent = "Error fetching data. Please try again!";
-                    container.style.display = "none";
-                    console.error("Error fetching data:", error);
+                    console.error("Error", error);
                 });
         }
     </script>
